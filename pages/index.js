@@ -1,8 +1,38 @@
+import React, { useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import { api } from '../globals'
 
-export default function Home() {
+
+export default function Home(props) {
+  const [current, setCurrent] = useState({ task: '', id: '' })
+  const [tasks, setTasks] = useState(props.tasks)
+
+  console.log(tasks)
+
+  const handleChange = (e) => {
+    setCurrent({ task: e.target.value, id: '' })
+  }
+  const updateTaskStatus = task => {
+    return console.log(task)
+  }
+  const addTask = (e) => {
+    e.preventDefault()
+    if (current.id) {
+      //update task name
+
+    } else {
+      // post task 
+      const data = {
+        task: current.task, status: false
+      }
+      fetch(api + '/task', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+      }).then(data => getServerSideProps)
+
+    }
+  }
   return (
     <div className={styles.container}>
       <Head>
@@ -13,45 +43,36 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          Welcome to <a href="#">Todox!</a>
         </h1>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+        <div className={styles.taskContainer}>
+          <div className={styles.taskbox}>
+            <form className={styles.taskform}>
+              <input className={styles.taskinput} type="text" placeholder='task' required onChange={handleChange} value={current.task} />
+              <button className={styles.addbtn} onClick={addTask} type='submit'>add/update</button>
+            </form>
+          </div>
+          <div className={styles.taskList}>
+            {
+              tasks.length && (
+                tasks.map(task => {
+                  return (
+                    <div className={styles.taskitem} key={task.id}>
+                      <input type="checkbox" checked={task.status} onChange={() => updateTaskStatus(task)} />
+                      <p className={styles.taskitemname}>{task.task} </p>
+                      <button onClick={() => editTask(task.id)}>&#9998;</button>
+                      <button onClick={() => deleteTask(task.id)}>&#10006;</button>
+                    </div>
+                  )
+                })
+              ) || (
+                <div className={styles.notask}>no Tasks found</div>
+              )
+            }
+          </div>
         </div>
       </main>
-
       <footer className={styles.footer}>
         <a
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
@@ -66,4 +87,12 @@ export default function Home() {
       </footer>
     </div>
   )
+}
+
+export const getServerSideProps = async () => {
+  const res = await fetch(api + '/task')
+  const tasks = await res.json()
+  return {
+    props: { tasks: tasks.data }
+  }
 }

@@ -61,8 +61,7 @@
   border-radius: 5px;
   padding: 0.75rem;
   font-size: 1.1rem;
-  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-    Bitstream Vera Sans Mono, Courier New, monospace;
+  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
 }
 
 .grid {
@@ -106,6 +105,65 @@
 .logo {
   height: 1em;
   margin-left: 0.5rem;
+}
+
+/*  task codes  */
+
+.taskContainer {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  align-items: center;
+  min-width: 620px;
+  min-height: 200px;
+  border-radius: 10px;
+  border: 2px solid rgb(99, 156, 247);
+}
+
+.taskbox {
+  width: 100%;
+}
+
+.taskform {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin: 10px 0px;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.taskitem {
+  border: 1px solid skyblue;
+  display: flex;
+  width: 60%;
+  justify-content: space-between;
+  margin: 10px;
+}
+.taskitemname {
+  width: 60%;
+}
+.taskitem button {
+  background: none;
+  cursor: pointer;
+  border: none;
+}
+
+.taskinput {
+  /* flex: 1; */
+  margin: 0 10px 0 10px;
+  font-size: 32px;
+  line-height: 36px;
+  padding-left: 10px;
+}
+.addbtn {
+  width: 25%;
+  margin: 0 10px 0 0;
 }
 
 @media (max-width: 600px) {
