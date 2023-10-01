@@ -9,18 +9,44 @@ export default function Home(props) {
   const [current, setCurrent] = useState({ task: '', id: '' })
   const [tasks, setTasks] = useState(props.tasks)
 
-  console.log(tasks)
-
   const handleChange = (e) => {
-    setCurrent({ task: e.target.value, id: '' })
+    setCurrent({ task: e.target.value, id: current.id || '' })
   }
+
+
   const updateTaskStatus = task => {
-    return console.log(task)
+    if (task.id) {
+      const update = task
+      update.status = !task.status
+      fetch(api + '/task/' + task.id, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(update)
+      }).then(data => data.json()).then(res => {
+        const t_index = tasks.findIndex(tsk => tsk.id === task.id)
+        const currentUpdateitem = tasks[t_index]
+        const updatedtasksarray = tasks
+        updatedtasksarray[t_index] = currentUpdateitem
+        setTasks([...updatedtasksarray])
+        return console.log({ res, updatedtasksarray })
+      }).catch(e => console.log({ e }))
+
+    }
   }
   const addTask = (e) => {
     e.preventDefault()
     if (current.id) {
-      //update task name
+      //update task details
+      fetch(api + '/task/' + current.id, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(current)
+      }).then(data => data.json()).then(updated => {
+        const t_index = tasks.findIndex(tsk => tsk.id === current.id)
+        const currentUpdateitem = tasks[t_index]
+        currentUpdateitem.task = current.task
+        const updatedtasksarray = tasks
+        updatedtasksarray[t_index] = currentUpdateitem
+        setTasks([...updatedtasksarray])
+        return setCurrent({ task: '', id: '' })
+      }).catch(e => console.log({ e }))
 
     } else {
       // post task 
@@ -29,9 +55,22 @@ export default function Home(props) {
       }
       fetch(api + '/task', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
-      }).then(data => getServerSideProps)
+      }).then(data => data.json()).then(task => setTasks([...tasks, task.data])).catch(err => console.log({ err }))
+      setCurrent({ task: '', id: '' })
 
     }
+  }
+  const deleteTask = (id) => {
+    fetch(api + '/task/' + id, {
+      method: 'DELETE', headers: { 'Content-Type': 'application/json' }
+    }).then(data => data.json()).then(task => setTasks(prev => prev.filter(task => task.id !== id))).catch(err => console.log({ err }))
+  }
+  const editTask = (id) => {
+    setCurrent(tasks.find(tsk => tsk.id === id))
+    // setTasks(prev => prev.filter(tsk => tsk.id !== id))
+    // fetch(api + '/task/' + id, {
+    //   method: 'DELETE', headers: { 'Content-Type': 'application/json' }
+    // }).then(data => data.json()).then(task => setTasks(prev => prev.filter(task => task.id !== id))).catch(err => console.log({ err }))
   }
   return (
     <div className={styles.container}>
@@ -49,7 +88,7 @@ export default function Home(props) {
         <div className={styles.taskContainer}>
           <div className={styles.taskbox}>
             <form className={styles.taskform}>
-              <input className={styles.taskinput} type="text" placeholder='task' required onChange={handleChange} value={current.task} />
+              <input className={styles.taskinput} type="text" placeholder='task' onChange={handleChange} value={current.task} required />
               <button className={styles.addbtn} onClick={addTask} type='submit'>add/update</button>
             </form>
           </div>
@@ -67,7 +106,7 @@ export default function Home(props) {
                   )
                 })
               ) || (
-                <div className={styles.notask}>no Tasks found</div>
+                <div className={styles.notask}>no Tasks found!</div>
               )
             }
           </div>
@@ -96,3 +135,4 @@ export const getServerSideProps = async () => {
     props: { tasks: tasks.data }
   }
 }
+
